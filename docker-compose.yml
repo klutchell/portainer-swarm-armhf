@@ -30,8 +30,8 @@ services:
     pihole:
         image: "diginc/pi-hole:arm"
         volumes:
-            - pihole_config:/etc/pihole
-            - pihole_dnsmasq.d:/etc/dnsmasq.d
+            - /home/pi/pihole/config:/etc/pihole
+            - /home/pi/pihole/dnsmasq.d:/etc/dnsmasq.d
             - /etc/localtime:/etc/localtime:ro
         ports:
             - "53:53/tcp"
@@ -51,5 +51,5 @@ services:
 
 volumes:
     portainer_config:
-    pihole_config:
-    pihole_dnsmasq.d:
+    # pihole_config:
+    # pihole_dnsmasq.d:
