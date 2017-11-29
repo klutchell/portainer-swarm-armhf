@@ -6,32 +6,23 @@ services:
     portainer:
         image: "portainer/portainer:linux-arm"
         volumes:
-            - portainer_config:/data
+            - portainer_config_vol:/data
             - /var/run/docker.sock:/var/run/docker.sock
             - /etc/localtime:/etc/localtime:ro
         ports:
             - "9000:9000"
         env_file:
             - ./portainer.env
-        deploy:
-            placement:
-                constraints:
-                    - node.role == manager
-            restart_policy:
-                condition: on-failure
-                delay: 5s
-                max_attempts: 3
-                window: 120s
-        # healthcheck:
-            # test: curl --fail http://localhost:9000/ || exit 1
+        networks:
+            - overlay_net
 
     # https://github.com/diginc/docker-pi-hole
     # https://hub.docker.com/r/diginc/pi-hole/
     pihole:
         image: "diginc/pi-hole:arm"
         volumes:
-            - /home/pi/pihole/config:/etc/pihole
-            - /home/pi/pihole/dnsmasq.d:/etc/dnsmasq.d
+            - pihole_config_vol:/etc/pihole
+            - pihole_dnsmasq.d_vol:/etc/dnsmasq.d
             - /etc/localtime:/etc/localtime:ro
         ports:
             - "53:53/tcp"
@@ -39,17 +30,16 @@ services:
             - "80:80"
         env_file:
             - ./pihole.env
-        deploy:
-            mode: global
-            restart_policy:
-                condition: on-failure
-                delay: 5s
-                max_attempts: 3
-                window: 120s
+        networks:
+            - overlay_net
         healthcheck:
             test: curl --fail http://localhost:80/admin/ || exit 1
 
 volumes:
-    portainer_config:
-    # pihole_config:
-    # pihole_dnsmasq.d:
+    portainer_config_vol:
+    pihole_config_vol:
+    pihole_dnsmasq.d_vol:
+
+networks:
+    overlay_net:
+        driver: overlay
